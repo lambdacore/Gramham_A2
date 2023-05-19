@@ -2,7 +2,6 @@ import edu.princeton.cs.algs4.Point2D;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Stack;
 
 public class ConvexHullBuilder {
@@ -21,7 +20,15 @@ public class ConvexHullBuilder {
         Point2D lowest = findLowestPoint();
 
         // Sort the points by polar angle with respect to the lowest point
-        Collections.sort(points, new PolarAngleComparator(lowest));
+        Collections.sort(points, (a, b) -> {
+            double angleA = Math.atan2(a.y() - lowest.y(), a.x() - lowest.x());
+            double angleB = Math.atan2(b.y() - lowest.y(), b.x() - lowest.x());
+            if (angleA < angleB) return -1;
+            if (angleA > angleB) return 1;
+            double distanceA = lowest.distanceTo(a);
+            double distanceB = lowest.distanceTo(b);
+            return Double.compare(distanceA, distanceB);
+        });
 
         // Build the convex hull using a stack
         Stack<Point2D> stack = new Stack<>();
@@ -59,28 +66,6 @@ public class ConvexHullBuilder {
             return 1; // counterclockwise
         } else {
             return 0; // collinear
-        }
-    }
-
-    private static class PolarAngleComparator implements Comparator<Point2D> {
-        private Point2D lowest;
-
-        public PolarAngleComparator(Point2D lowest) {
-            this.lowest = lowest;
-        }
-
-        public int compare(Point2D a, Point2D b) {
-            if (a == lowest) return -1;
-            if (b == lowest) return 1;
-            double angleA = Math.atan2(a.y() - lowest.y(), a.x() - lowest.x());
-            double angleB = Math.atan2(b.y() - lowest.y(), b.x() - lowest.x());
-            if (angleA < angleB) return -1;
-            if (angleA > angleB) return 1;
-            double distanceA = lowest.distanceTo(a);
-            double distanceB = lowest.distanceTo(b);
-            if (distanceA < distanceB) return -1;
-            if (distanceA > distanceB) return 1;
-            return 0;
         }
     }
 }

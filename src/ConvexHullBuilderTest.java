@@ -100,20 +100,28 @@ public class ConvexHullBuilderTest {
     }
 
     @Test
-    public void testConvexHull_ThreePoints() {
+    public void testConvexHull_PointsInside_C() {
         ArrayList<Point2D> points = new ArrayList<>(Arrays.asList(
-                new Point2D(1000, 2000),
-                new Point2D(2000, 1000),
-                new Point2D(1500, 3000)
+                new Point2D(1000, 1000),
+                new Point2D(1000, 1020),
+                new Point2D(1010, 1030),
+                new Point2D(1009, 1010),
+                new Point2D(1020, 1000),
+                new Point2D(1020, 1020)
+
+
         ));
 
         ConvexHullBuilder builder = new ConvexHullBuilder(points);
         Iterable<Point2D> hull = builder.hull();
 
         List<Point2D> expectedHull = Arrays.asList(
-                new Point2D(1000, 2000),
-                new Point2D(2000, 2000),
-                new Point2D(1500, 3000)
+                new Point2D(1000, 1000),
+                new Point2D(1020, 1000),
+                new Point2D(1020, 1020),
+                new Point2D(1010, 1030),
+                new Point2D(1000, 1020)
+
         );
 
         assertEquals(expectedHull, toList(hull));

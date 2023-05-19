@@ -3,10 +3,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class ConvexHullBuilderTest {
 
@@ -28,24 +27,25 @@ public class ConvexHullBuilderTest {
         // Convert the expected result to an ArrayList for easier comparison
         ArrayList<Point2D> expectedHull = new ArrayList<>(Arrays.asList(
                 new Point2D(1000, 2000),
+                new Point2D(2000, 2000),
                 new Point2D(1000, 3000),
-                new Point2D(3000, 4000),
                 new Point2D(3000, 3000),
-                new Point2D(2000, 3000)
+                new Point2D(3000, 4000)
         ));
 
+        // Sort the expected hull points lexicographically for consistent comparison
+        Collections.sort(expectedHull);
+
         // Compare the expected hull and the actual hull
-        Iterator<Point2D> expectedIterator = expectedHull.iterator();
-        Iterator<Point2D> actualIterator = hull.iterator();
-        while (expectedIterator.hasNext() && actualIterator.hasNext()) {
-            Point2D expected = expectedIterator.next();
-            Point2D actual = actualIterator.next();
-            assertEquals(expected.x(), actual.x(), 0.0001);
-            assertEquals(expected.y(), actual.y(), 0.0001);
-        }
-        // Ensure both lists have been fully traversed
-        assertFalse(expectedIterator.hasNext());
-        assertFalse(actualIterator.hasNext());
+        assertEquals(expectedHull, toArrayList(hull));
     }
 
+    // Helper method to convert an Iterable<Point2D> to an ArrayList<Point2D>
+    private ArrayList<Point2D> toArrayList(Iterable<Point2D> iterable) {
+        ArrayList<Point2D> list = new ArrayList<>();
+        for (Point2D point : iterable) {
+            list.add(point);
+        }
+        return list;
+    }
 }

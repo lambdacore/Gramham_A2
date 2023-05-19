@@ -2,6 +2,7 @@ import edu.princeton.cs.algs4.Point2D;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Stack;
 
 public class ConvexHullBuilder {
@@ -20,72 +21,23 @@ public class ConvexHullBuilder {
         Point2D lowest = findLowestPoint();
 
         // Sort the points by polar angle with respect to the lowest point
-        Collections.sort(points, lowest.polarOrder());
+        Collections.sort(points, new PolarAngleComparator(lowest));
 
-        // Build the convex hull using Graham's scan algorithm
-        Stack<Point2D> hullStack = new Stack<>();
-        hullStack.push(points.get(0));
+        // Build the convex hull using a stack
+        Stack<Point2D> stack = new Stack<>();
+        stack.push(points.get(0)); // Push the lowest point
+        stack.push(points.get(1));
 
-        // Find the outermost points in clockwise and counterclockwise directions
-        ArrayList<Point2D> outermostClockwise = new ArrayList<>();
-        ArrayList<Point2D> outermostCounterclockwise = new ArrayList<>();
-
-        for (int i = 1; i < points.size(); i++) {
-            Point2D currentPoint = points.get(i);
-
-            while (hullStack.size() >= 2) {
-                Point2D top = hullStack.pop();
-                Point2D nextToTop = hullStack.peek();
-
-                if (ccw(nextToTop, top, currentPoint) > 0) {
-                    hullStack.push(top);
-                    break;
-                }
+        for (int i = 2; i < points.size(); i++) {
+            Point2D top = stack.pop();
+            while (!stack.isEmpty() && ccw(stack.peek(), top, points.get(i)) <= 0) {
+                top = stack.pop();
             }
-
-            hullStack.push(currentPoint);
+            stack.push(top);
+            stack.push(points.get(i));
         }
 
-        // Add the points in the clockwise direction to outermostClockwise list
-        while (!hullStack.isEmpty()) {
-            outermostClockwise.add(hullStack.pop());
-        }
-
-        // Reverse the order of points to scan counterclockwise
-        Collections.reverse(points);
-
-        // Clear the hull stack
-        hullStack.clear();
-        hullStack.push(points.get(0));
-
-        for (int i = 1; i < points.size(); i++) {
-            Point2D currentPoint = points.get(i);
-
-            while (hullStack.size() >= 2) {
-                Point2D top = hullStack.pop();
-                Point2D nextToTop = hullStack.peek();
-
-                if (ccw(nextToTop, top, currentPoint) > 0) {
-                    hullStack.push(top);
-                    break;
-                }
-            }
-
-            hullStack.push(currentPoint);
-        }
-
-        // Add the points in the counterclockwise direction to outermostCounterclockwise list
-        while (!hullStack.isEmpty()) {
-            outermostCounterclockwise.add(hullStack.pop());
-        }
-
-        // Remove the common point (lowest) from the counterclockwise list
-        outermostCounterclockwise.remove(0);
-
-        // Concatenate the two lists to form the convex hull
-        outermostClockwise.addAll(outermostCounterclockwise);
-
-        return outermostClockwise;
+        return stack;
     }
 
     private Point2D findLowestPoint() {
@@ -107,6 +59,28 @@ public class ConvexHullBuilder {
             return 1; // counterclockwise
         } else {
             return 0; // collinear
+        }
+    }
+
+    private static class PolarAngleComparator implements Comparator<Point2D> {
+        private Point2D lowest;
+
+        public PolarAngleComparator(Point2D lowest) {
+            this.lowest = lowest;
+        }
+
+        public int compare(Point2D a, Point2D b) {
+            if (a == lowest) return -1;
+            if (b == lowest) return 1;
+            double angleA = Math.atan2(a.y() - lowest.y(), a.x() - lowest.x());
+            double angleB = Math.atan2(b.y() - lowest.y(), b.x() - lowest.x());
+            if (angleA < angleB) return -1;
+            if (angleA > angleB) return 1;
+            double distanceA = lowest.distanceTo(a);
+            double distanceB = lowest.distanceTo(b);
+            if (distanceA < distanceB) return -1;
+            if (distanceA > distanceB) return 1;
+            return 0;
         }
     }
 }

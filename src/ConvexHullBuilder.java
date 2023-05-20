@@ -19,7 +19,6 @@ public class ConvexHullBuilder {
     }
 
     // Task 1 create a stack or "iterable" that has the points of the convex hull
-    // Other notes here
     public Iterable<Point2D> hull() {
         if (points.size() < 3) {
             return points; // Return all points if there are > 3

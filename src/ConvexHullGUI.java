@@ -18,7 +18,6 @@ public class ConvexHullGUI {
         while (true) {
             if (StdDraw.mousePressed()) {
                 //user clicks, add point to the list
-                System.out.println("test");
                 int x = (int) (Math.round(StdDraw.mouseX()));
                 int y = (int) (Math.round(StdDraw.mouseY()));
                 pointList.add(new Point2D(x, y));
